@@ -1,26 +1,11 @@
 import requests
 from langsmith import traceable
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from langchain_core.tools import tool
-
-
-class Person(BaseModel):
-    """A person model."""
-    name: str = Field(..., min_length=2)
-    age: int = Field(..., gt=0)
-    city: str
 
 
 class StructuredResponse(BaseModel):
     text: str
-
-
-@tool("create_person_tool")
-@traceable
-def create_person(name: str, age: int, city: str):
-    """Create an instance of Person class for the purpose of database load."""
-    _person = Person(name=name, age=age, city=city)
-    return repr(_person)
 
 
 @tool("get_weather_tool")
@@ -42,3 +27,15 @@ def get_joke() -> str:
         return f"{joke_data['setup']} - {joke_data['punchline']}"
     else:
         return "Failed to retrieve joke"
+
+
+@tool("book_hotel_tool")
+def book_hotel(hotel_name: str):
+    """Book a hotel"""
+    return f"Successfully booked a stay at {hotel_name}."
+
+
+@tool("book_flight_tool")
+def book_flight(from_airport: str, to_airport: str):
+    """Book a flight"""
+    return f"Successfully booked a flight from {from_airport} to {to_airport}."

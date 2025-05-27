@@ -165,3 +165,4 @@ uv.lock
 
 .DS_Store
 .idea/
+*.db

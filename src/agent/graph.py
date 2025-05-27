@@ -1,32 +1,52 @@
 from dotenv import load_dotenv
-from langgraph.prebuilt import create_react_agent
-from langchain_openai import ChatOpenAI
-from agent import tools as t
-from langchain_community.tools.tavily_search import TavilySearchResults
+from typing import Annotated
+from langgraph.graph import StateGraph, START, MessagesState
+from langgraph.graph.message import add_messages
+from langchain.chat_models import init_chat_model
+from langchain_core.messages import AnyMessage
+from langchain_tavily import TavilySearch
+from langgraph.prebuilt.tool_node import ToolNode, tools_condition
+from src.agent.tools import orm as o
+
 
 
 load_dotenv()
 
 
-search = TavilySearchResults(max_results=1)
-
-model = ChatOpenAI(
-    model="gpt-4o-mini",
-    temperature=0
-)
-
-graph = create_react_agent(
-    model=model,
-    tools=[t.get_weather, t.get_joke, t.create_person, search],
-    prompt="Behave like a nasty pirate.",
-    name="MyAgent",
-    response_format=t.StructuredResponse,
-)
+# define state class (can use MessagesState directly)
+class State(MessagesState):
+    messages: Annotated[list[AnyMessage], add_messages]
 
 
-# result = graph.invoke({"messages": {"role": "user", "content": "Hello, tell me some joke"}})
-#
-# for msg in result["messages"]:
-#     msg.pretty_print()
-#
-# result["structured_response"]
+# define nodes
+def chatbot(state: MessagesState):
+    return {"messages": [llm_with_tools.invoke(state["messages"])]}
+
+
+# define model and tools
+llm = init_chat_model("openai:gpt-4o-mini")
+tool = TavilySearch(max_results=1)
+
+tools_list = [
+    tool,
+    o.create_user,
+    o.get_user_by_name,
+    o.get_user_by_age,
+    o.get_n_users,
+]
+llm_with_tools = llm.bind_tools(tools_list)
+
+
+
+# build graph
+tool_node = ToolNode(tools=tools_list)
+graph_builder = StateGraph(State)
+
+graph_builder.add_node("chatbot", chatbot)
+graph_builder.add_node("tools", tool_node)
+
+graph_builder.add_edge(START, "chatbot")
+graph_builder.add_conditional_edges("chatbot", tools_condition)
+graph_builder.add_edge("tools", "chatbot")
+
+graph = graph_builder.compile()
