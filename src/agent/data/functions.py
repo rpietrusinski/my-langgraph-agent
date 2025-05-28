@@ -1,14 +1,18 @@
+import os
+from dotenv import load_dotenv
 from typing import Optional
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from langchain_core.tools import tool
+from agent.data.model import User
 
-from src.agent.data.model import User
+
+load_dotenv()
+DB = os.environ.get("SQLITE_DB")
 
 
 def get_db():
-    engine = create_engine('sqlite:///example.db')
+    engine = create_engine(f"sqlite:///{DB}")
     session = sessionmaker(bind=engine)()
     return session
 
@@ -16,39 +20,36 @@ def get_db():
 SESSION = get_db()
 
 
-@tool("get_user_by_name_tool")
-def get_user_by_name(name: str):
+def get_user_by_name(name: str, session=SESSION):
     """Extracts user with given name from db"""
 
-    specific_user = SESSION.query(User).filter_by(name=name).first()
+    specific_user = session.query(User).filter_by(name=name).first()
     return convert_user_to_dict(specific_user)
 
 
-@tool("get_user_by_age_tool")
-def get_user_by_age(age: int):
+def get_user_by_age(age: int, session=SESSION):
     """Extracts user with given age from db"""
 
-    specific_user = SESSION.query(User).filter_by(age=age).first()
+    specific_user = session.query(User).filter_by(age=age).first()
     return convert_user_to_dict(specific_user)
 
 
-@tool("get_n_users_tool")
-def get_n_users(n):
+def get_top_n_users(n, session=SESSION):
     """Extracts top n users from db"""
-    all_users = SESSION.query(User).limit(n).all()
+    all_users = session.query(User).limit(n).all()
     return [convert_user_to_dict(user) for user in all_users]
 
 
-@tool("create_user_tool")
 def create_user(
     name: str,
     age: Optional[int] = None,
     city: Optional[str] = None,
+    session = SESSION,
 ):
     """Puts user to db"""
     new_user = User(name=name, age=age, city=city)
-    SESSION.add(new_user)
-    SESSION.commit()
+    session.add(new_user)
+    session.commit()
 
 
 def convert_user_to_dict(user):
