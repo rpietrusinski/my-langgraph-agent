@@ -2,8 +2,9 @@
   "dependencies": ["."],
   "graphs": {
     "react-agent": "./src/agent/react_agent.py:graph",
-    "graph-agent": "./src/agent/graph.py:graph",
-    "supervisor-agent": "./src/agent/multiagent_supervisor.py:graph"
+    "graph-agent": "./src/agent/graph_agent.py:graph",
+    "supervisor-agent": "./src/agent/supervisor_agent.py:graph",
+    "elastic-agent": "./src/agent/elastic-agent.py:graph"
   },
   "env": ".env"
 }

@@ -17,7 +17,11 @@ model = ChatOpenAI(
 
 graph = create_react_agent(
     model=model,
-    tools=[t.get_weather, t.get_joke, search],
+    tools=[
+        t.get_weather,
+        t.get_joke,
+        search
+    ],
     prompt="Behave like a nasty pirate.",
     name="MyAgent",
     response_format=t.StructuredResponse,
