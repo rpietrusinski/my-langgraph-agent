@@ -1,4 +1,4 @@
-# My LnagGraph template project
+# My LangGraph agents
 
 [![CI](https://github.com/langchain-ai/new-langgraph-project/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/langchain-ai/new-langgraph-project/actions/workflows/unit-tests.yml)
 [![Integration Tests](https://github.com/langchain-ai/new-langgraph-project/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/langchain-ai/new-langgraph-project/actions/workflows/integration-tests.yml)
@@ -9,7 +9,8 @@ This template demonstrates a simple application implemented using [LangGraph](ht
   <img src="./static/studio_ui.png" alt="Graph view in LangGraph studio UI" width="75%" />
 </div>
 
-The core logic defined in `src/agent/graph.py`, showcases an single-step application that responds with a fixed string and the configuration provided.
+A couple agents are introduced in this template. They utilize the core features of LangGraph framework like tool-calling, multiagent supervisor architecture,
+building with ReAct/Graph APIs, integrations with external DBs like ORM-based sqlite and Elasticsearch.
 
 You can extend this graph to orchestrate more complex agentic workflows that can be visualized and debugged in LangGraph Studio.
 
